@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>牙周手術決策選擇器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1d2a2e; --muted:#5d6b6f; --line:#dde3e1; --paper:#f7f5f0; --card:#ffffff;
+  --teal:#0f5c63; --teal-soft:#e3efee; --amber:#a3620a; --amber-soft:#fbf1e1;
+  --red:#a33a2c; --red-soft:#f8e6e2; --green:#2f6b3a; --green-soft:#e6f1e6;
+  --gA:#0f5c63; --gB:#4f7a8a; --g0:#8a8f8c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;font-size:16px;line-height:1.65}
+.wrap{max-width:780px;margin:0 auto;padding:20px 16px 64px}
+header h1{font-family:"Noto Serif TC",serif;font-size:1.6rem;margin:4px 0 2px;letter-spacing:.02em}
+header p{margin:0;color:var(--muted);font-size:.92rem}
+.steps{display:flex;gap:4px;margin:20px 0 18px;padding:0;list-style:none}
+.steps li{flex:1;text-align:center;font-size:.78rem;color:var(--muted);cursor:pointer;user-select:none}
+.steps li .bar{height:4px;border-radius:2px;background:var(--line);margin-bottom:6px;transition:background .2s}
+.steps li.done .bar{background:#8fb5b1}
+.steps li.on .bar{background:var(--teal)}
+.steps li.on{color:var(--teal);font-weight:700}
+.steps li.lock{cursor:default;opacity:.55}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 18px;margin-bottom:14px}
+.card h2{font-family:"Noto Serif TC",serif;font-size:1.25rem;margin:0 0 4px}
+.card .sub{color:var(--muted);font-size:.9rem;margin:0 0 14px}
+.q{margin:18px 0 6px}
+.q:first-of-type{margin-top:6px}
+.q .lab{font-weight:700;font-size:.98rem;margin-bottom:8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.q .hint{font-weight:400;color:var(--muted);font-size:.82rem}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:9px 13px;font:inherit;font-size:.93rem;color:var(--ink);cursor:pointer;text-align:left;transition:all .15s}
+.opt:hover{border-color:#9fbfbb}
+.opt.sel{border-color:var(--teal);background:var(--teal-soft);color:var(--teal);font-weight:700}
+.opt small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.opt.sel small{color:#3d7a7f}
+.note{border-left:3px solid var(--line);padding:8px 12px;margin:12px 0 0;font-size:.88rem;color:var(--muted);background:#fbfaf7;border-radius:0 8px 8px 0}
+.note.warn{border-color:var(--amber);background:var(--amber-soft);color:#6b4308}
+.note.stop{border-color:var(--red);background:var(--red-soft);color:#6e2419}
+.note.ok{border-color:var(--green);background:var(--green-soft);color:#24502c}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:6px}
+.btn{font:inherit;border-radius:10px;padding:11px 20px;cursor:pointer;border:1.5px solid var(--teal);background:var(--teal);color:#fff;font-weight:700}
+.btn.ghost{background:transparent;color:var(--teal)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.ev{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font:inherit;font-size:.76rem;border:1px solid #c9d6d4;background:#f3f7f6;color:var(--teal);border-radius:999px;padding:2px 10px;cursor:pointer}
+.chip[aria-expanded="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.evbox{display:none;margin-top:8px;font-size:.84rem;background:#f3f7f6;border-radius:8px;padding:10px 12px;color:#2c4044}
+.evbox.open{display:block}
+.evbox .claim{margin:0 0 6px}
+.evbox .bib{color:var(--muted)}
+.evbox a{color:var(--teal)}
+.tag{display:inline-block;font-size:.7rem;border-radius:4px;padding:0 6px;margin-left:4px;vertical-align:1px;border:1px solid currentColor}
+.res-sec{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.res-sec:first-child{border-top:none;padding-top:0;margin-top:0}
+.res-sec h3{font-size:.8rem;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;font-weight:700}
+.rec{margin:0 0 12px}
+.rec .t{font-weight:700;font-size:1.02rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rec .d{font-size:.92rem;margin-top:2px}
+.grade{font-size:.7rem;font-weight:700;color:#fff;border-radius:4px;padding:1px 7px}
+.grade.A{background:var(--gA)} .grade.B{background:var(--gB)} .grade.Z{background:var(--g0)}
+.grade.E{background:#b08a4a} .grade.I{background:#9a6b8a}
+.lvl-stop .t{color:var(--red)} .lvl-warn .t{color:var(--amber)}
+.path{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 0}
+.path span{font-size:.8rem;background:#eef1ef;border-radius:6px;padding:2px 8px;color:#3b4a4d}
+.refs ol{padding-left:22px;margin:8px 0 0;font-size:.82rem;color:#3b4a4d}
+.refs li{margin-bottom:6px}
+.refs a{color:var(--teal)}
+.legend{font-size:.78rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;align-items:center}
+footer{font-size:.78rem;color:var(--muted);margin-top:24px;line-height:1.6}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 16px;border-radius:8px;font-size:.88rem;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+@media (max-width:520px){.steps li{font-size:.7rem}.card{padding:16px 14px}header h1{font-size:1.35rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>牙周手術決策選擇器</h1>
+  <p>第三步治療：骨缺損型態、根岔侵犯、表型 → 術式與再生材料｜每個決策附文獻</p>
+</header>
+<ol class="steps" id="steps"></ol>
+<main id="main"></main>
+<footer>
+  本工具依 2020 EFP S3 臨床指引與相關系統性回顧整理，供牙周病專科醫師臨床判斷參考，不取代個案評估。文獻標示：「全文 md」＝依原文全文核對；「知識庫」＝課程講義已核對原文；「摘要」＝僅依 PubMed 摘要。標「臨床推論」者非文獻直接結論。<br>
+  三軍總醫院 牙周病科 陳穎吾
+</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 文獻 ===================== */
+const R = {
+ s3:{a:"Sanz 2020（EFP S3）",t:"Treatment of stage I–III periodontitis—The EFP S3 level clinical practice guideline",j:"J Clin Periodontol",pmid:"32383274",doi:"10.1111/jcpe.13290",ty:"臨床指引",src:"全文 md"},
+ ct15:{a:"Cortellini & Tonetti 2015",t:"Clinical concepts for regenerative therapy in intrabony defects",j:"Periodontol 2000",pmid:"25867990",doi:"10.1111/prd.12048",ty:"臨床回顧（決策流程）",src:"全文 md"},
+ nib20a:{a:"Nibali 2020a",t:"Regenerative surgery versus access flap for the treatment of intra-bony periodontal defects: A systematic review and meta-analysis",j:"J Clin Periodontol",pmid:"31860134",doi:"10.1111/jcpe.13237",ty:"SR／MA",src:"知識庫"},
+ nib20b:{a:"Nibali 2020b",t:"Periodontal infrabony defects: Systematic review of healing by defect morphology following regenerative surgery",j:"J Clin Periodontol",pmid:"33025619",doi:"10.1111/jcpe.13381",ty:"SR／MA",src:"知識庫"},
+ tsi04:{a:"Tsitoura 2004",t:"Baseline radiographic defect angle of the intrabony defect as a prognostic indicator in regenerative periodontal surgery with enamel matrix derivative",j:"J Clin Periodontol",pmid:"15257742",doi:"10.1111/j.1600-051X.2004.00555.x",ty:"RCT 資料再分析",src:"摘要"},
+ sta21:{a:"Stavropoulos 2021a",t:"Medium- and long-term clinical benefits of periodontal regenerative/reconstructive procedures in intrabony defects: Systematic review and network meta-analysis of randomized controlled clinical studies",j:"J Clin Periodontol",pmid:"33289191",doi:"10.1111/jcpe.13409",ty:"SR／NMA",src:"知識庫"},
+ pat12:{a:"Patel 2012",t:"The effect of smoking on periodontal bone regeneration: a systematic review and meta-analysis",j:"J Periodontol",pmid:"21627463",doi:"10.1902/jop.2011.110130",ty:"SR／MA",src:"摘要"},
+ ct04:{a:"Cortellini 2004",t:"Long-term tooth survival following regenerative treatment of intrabony defects",j:"J Periodontol",pmid:"15212349",doi:"10.1902/jop.2004.75.5.672",ty:"世代研究",src:"知識庫"},
+ kao14:{a:"Kao 2014",t:"Periodontal regeneration – intrabony defects: a systematic review from the AAP Regeneration Workshop",j:"J Periodontol",pmid:"25216204",doi:"10.1902/jop.2015.130685",ty:"SR",src:"知識庫"},
+ ct01:{a:"Cortellini 2001",t:"The simplified papilla preservation flap in the regenerative treatment of deep intrabony defects: clinical outcomes and postoperative morbidity",j:"J Periodontol",pmid:"11811506",doi:"10.1902/jop.2001.72.12.1702",ty:"多中心 RCT",src:"摘要"},
+ car00:{a:"Carnevale & Kaldahl 2000",t:"Osseous resective surgery",j:"Periodontol 2000",pmid:"11276517",doi:"10.1034/j.1600-0757.2000.2220106.x",ty:"臨床回顧",src:"全文 md"},
+ fer20:{a:"Ferrarotti 2020",t:"Pocket elimination after osseous resective surgery: A systematic review and meta-analysis",j:"J Clin Periodontol",pmid:"32145035",doi:"10.1111/jcpe.13281",ty:"SR／MA",src:"知識庫"},
+ cat81:{a:"Caton 1981",t:"Histometric evaluation of periodontal surgery. III. The effect of bone resection on the connective tissue attachment level",j:"J Periodontol",pmid:"6943327",doi:"10.1902/jop.1981.52.8.405",ty:"動物研究",src:"知識庫"},
+ dur85:{a:"Durwin 1985",t:"Healing after treatment of periodontal intraosseous defects. IV. Effect of a non-resective versus a partially resective approach",j:"J Clin Periodontol",pmid:"3860516",doi:"10.1111/j.1600-051x.1985.tb01387.x",ty:"臨床試驗",src:"知識庫"},
+ och95:{a:"Ochsenbein 1995",t:"Combined approach to the management of intrabony defects",j:"Int J Periodontics Restorative Dent",pmid:"8593984",doi:null,ty:"專家意見",src:"知識庫"},
+ ree71:{a:"Rees 1971",t:"Radiographic interpretation of periodontal osseous lesions",j:"Oral Surg Oral Med Oral Pathol",pmid:"5281547",doi:"10.1016/0030-4220(71)90260-x",ty:"診斷研究",src:"知識庫"},
+ man17:{a:"Mandelaris 2017",t:"American Academy of Periodontology Best Evidence Consensus Statement on Selected Oral Applications for Cone-Beam Computed Tomography",j:"J Periodontol",pmid:"28967333",doi:"10.1902/jop.2017.170234",ty:"AAP 共識（專家意見）",src:"知識庫"},
+ ct18:{a:"Cortellini 2018",t:"Mucogingival conditions in the natural dentition: Narrative review, case definitions, and diagnostic considerations",j:"J Clin Periodontol",pmid:"29926504",doi:"10.1111/jcpe.12948",ty:"世界研討會回顧",src:"知識庫"},
+ ago25:{a:"Agossa 2025",t:"Effect of Connective Tissue Grafts in the Regenerative Treatment of Intrabony Defects: A Systematic Review and Meta-Regression Analysis",j:"J Periodontal Res",pmid:"40202292",doi:"10.1111/jre.13402",ty:"SR／統合迴歸",src:"知識庫"},
+ tar84:{a:"Tarnow & Fletcher 1984",t:"Classification of the vertical component of furcation involvement",j:"J Periodontol",pmid:"6588186",doi:"10.1902/jop.1984.55.5.283",ty:"分類系統",src:"摘要"},
+ ham75:{a:"Hamp 1975",t:"Periodontal treatment of multirooted teeth. Results after 5 years",j:"J Clin Periodontol",pmid:"1058213",doi:"10.1111/j.1600-051x.1975.tb01734.x",ty:"世代研究（分類系統）",src:"摘要"},
+ dea06:{a:"Deas 2006",t:"Clinical reliability of the \"furcation arrow\" as a diagnostic marker",j:"J Periodontol",pmid:"16881813",doi:"10.1902/jop.2006.060034",ty:"診斷研究",src:"全文 md"},
+ sca17:{a:"Scarfe 2017",t:"The emerging role of maxillofacial radiology in the diagnosis and management of patients with complex periodontitis",j:"Periodontol 2000",pmid:"28429477",doi:"10.1111/prd.12193",ty:"敘述性回顧",src:"知識庫"},
+ jep20:{a:"Jepsen 2020",t:"Regenerative surgical treatment of furcation defects: A systematic review and Bayesian network meta-analysis of randomized clinical trials",j:"J Clin Periodontol",pmid:"31860125",doi:"10.1111/jcpe.13238",ty:"SR／NMA",src:"知識庫"},
+ dom20:{a:"Dommisch 2020",t:"Resective surgery for the treatment of furcation involvement: A systematic review",j:"J Clin Periodontol",pmid:"31912534",doi:"10.1111/jcpe.13241",ty:"SR（觀察性研究）",src:"知識庫"},
+ sanz15:{a:"Sanz 2015b",t:"Clinical concepts for regenerative therapy in furcations",j:"Periodontol 2000",pmid:"25867991",doi:"10.1111/prd.12081",ty:"臨床回顧",src:"知識庫"},
+ bow03:{a:"Bowers 2003",t:"Factors influencing the outcome of regenerative therapy in mandibular Class II furcations: Part I",j:"J Periodontol",pmid:"14584858",doi:"10.1902/jop.2003.74.9.1255",ty:"前瞻性臨床研究",src:"知識庫"},
+ nib16:{a:"Nibali 2016a",t:"Tooth loss in molars with and without furcation involvement – a systematic review and meta-analysis",j:"J Clin Periodontol",pmid:"26932323",doi:"10.1111/jcpe.12497",ty:"SR／MA",src:"知識庫"},
+ met91:{a:"Metzler 1991",t:"Clinical evaluation of guided tissue regeneration in the treatment of maxillary class II molar furcation invasions",j:"J Periodontol",pmid:"1870064",doi:"10.1902/jop.1991.62.6.353",ty:"RCT",src:"知識庫"},
+ pon87:{a:"Pontoriero 1987",t:"Guided tissue regeneration in the treatment of furcation defects in man",j:"J Clin Periodontol",pmid:"3480298",doi:"10.1111/j.1600-051x.1987.tb01526.x",ty:"臨床試驗",src:"知識庫"},
+ koo11:{a:"Koop 2011",t:"Periodontal regeneration with enamel matrix derivative in reconstructive periodontal therapy: a systematic review",j:"J Periodontol",pmid:"22050544",doi:"10.1902/jop.2011.110266",ty:"SR",src:"知識庫"},
+ tu09:{a:"Tu 2009",t:"Do bone grafts or barrier membranes provide additional treatment effects for infrabony lesions treated with enamel matrix derivatives? A network meta-analysis of randomized-controlled trials",j:"J Clin Periodontol",pmid:"19958442",doi:"10.1111/j.1600-051X.2009.01499.x",ty:"NMA",src:"知識庫"},
+ mir26:{a:"Miron 2026",t:"30 Years of Enamel Matrix Derivative (EMD): Biological Foundations and Systematic Review With Meta-Analyses Across Multiple Clinical Indications",j:"J Periodontal Res",pmid:"41511157",doi:"10.1111/jre.70069",ty:"SR／MA",src:"知識庫"},
+ avi22:{a:"Avila-Ortiz 2022",t:"American Academy of Periodontology best evidence consensus statement on the use of biologics in clinical practice",j:"J Periodontol",pmid:"36279407",doi:"10.1002/JPER.22-0361",ty:"AAP 共識",src:"知識庫"},
+ ct95:{a:"Cortellini 1995",t:"The modified papilla preservation technique. A new surgical approach for interproximal regenerative procedures",j:"J Periodontol",pmid:"7782979",doi:"10.1902/jop.1995.66.4.261",ty:"病例系列",src:"知識庫"},
+ ct99:{a:"Cortellini 1999",t:"The simplified papilla preservation flap. A novel surgical approach for the management of soft tissues in regenerative procedures",j:"Int J Periodontics Restorative Dent",pmid:"10815597",doi:null,ty:"病例系列",src:"知識庫"},
+ ct07:{a:"Cortellini 2007",t:"A minimally invasive surgical technique with an enamel matrix derivative in the regenerative treatment of intra-bony defects: a novel approach to limit morbidity",j:"J Clin Periodontol",pmid:"17243998",doi:"10.1111/j.1600-051X.2006.01020.x",ty:"病例系列",src:"摘要"},
+ ct09:{a:"Cortellini 2009",t:"Improved wound stability with a modified minimally invasive surgical technique in the regenerative treatment of isolated interdental intrabony defects",j:"J Clin Periodontol",pmid:"19207892",doi:"10.1111/j.1600-051X.2008.01352.x",ty:"病例系列",src:"摘要"}
+};
+const used = new Set();
+function ev(key, claim){ return {k:key, c:claim}; }
+
+/* ===================== 問題 ===================== */
+const STEPS = [
+ {id:"pt", name:"病人條件", title:"第 0 步：病人與牙齒條件", sub:"再評估後決定是否進入第三步治療，並排除影響手術結果的因素。"},
+ {id:"bone", name:"骨缺損", title:"第 1 步：骨缺損型態（X 光＋探骨）", sub:"依缺損型態決定再生、切除性骨手術（骨整形／骨切除）或翻瓣清創。"},
+ {id:"ph", name:"表型", title:"第 2 步：牙周表型", sub:"影響翻瓣設計、是否併用結締組織移植，以及切除性手術後的退縮。"},
+ {id:"fu", name:"根岔", title:"第 3 步：根岔侵犯", sub:"水平分度（Hamp）＋垂直分類（Tarnow & Fletcher）＋位置。"},
+ {id:"res", name:"結果", title:"決策摘要", sub:""}
+];
+
+const Q = {
+ pt:[
+  {k:"ppd", lab:"第二步治療後再評估的殘留囊袋", opts:[
+    ["deep","PPD ≥ 6 mm"],["mod","PPD 4–5 mm 伴探測出血"],["closed","PPD ≤ 4 mm 且無探測出血","已達治療終點"]],
+   ev:[ev("s3","治療終點為沒有 > 4 mm 伴探測出血的囊袋、沒有 ≥ 6 mm 深囊袋；未達到才進入第三步治療（p. 14）。R3.1（Grade B）：第三期牙周炎殘留 ≥ 6 mm 建議翻瓣手術；4–5 mm 建議重複齦下器械治療。")]},
+  {k:"oh", lab:"口腔清潔", hint:"FMPS／FMBS", opts:[
+    ["good","兩者皆 < 15%"],["mid","15–25%"],["poor","> 25% 或依從性不佳"]],
+   ev:[ev("s3","R3.6（Grade A，專家共識，強烈共識）：病人未達到並維持適當自我口腔衛生時，不做牙周手術（含植牙）。"),
+       ev("ct15","術前病人因素控制：FMPS < 15%、FMBS < 15%（Fig. 9）。"),
+       ev("kao14","所引研究以 FMPS／FMBS ≤ 15%、≤ 20% 或 ≤ 25% 為手術門檻；牙菌斑控制為 SORT C。")]},
+  {k:"smk", lab:"吸菸", opts:[["no","不吸菸／已戒菸"],["light","≤ 10 支／日"],["heavy","> 10 支／日"]],
+   ev:[ev("ct15","回溯研究：每日 > 10 支者附連獲得 2.1 ± 1.2 mm，不吸菸者 5.2 ± 1.9 mm；之後研究證實有劑量效應。"),
+       ev("ct04","再生後附連喪失 ≥ 2 mm：吸菸 HR = 7.2；拔除的 6 顆都是吸菸者。"),
+       ev("pat12","吸菸者治療骨內缺損後的探測骨獲得顯著較少（3 篇研究的次組統合分析）。"),
+       ev("s3","R1.6（Grade A）：牙周治療病人應實施戒菸介入。")]},
+  {k:"sys", lab:"全身狀況", opts:[["ok","無或控制良好"],["bad","糖尿病或其他全身疾病控制不佳"]],
+   ev:[ev("ct15","術前須先確立：沒有吸菸、壓力、未控制的糖尿病或其他全身疾病等不利條件（Flow chart 1）。")]},
+  {k:"mob", lab:"患牙動搖度", hint:"Miller", opts:[["0","生理性／一度"],["2","二度"],["3","三度"]],
+   ev:[ev("ct15","Miller 二、三度動搖的牙齒，應在再生手術前或術後立即固定；早期癒合期要再評估動搖度。"),
+       ev("ct01","多中心 RCT：基線動搖度是 1 年附連獲得的顯著共變項（P = 0.036）。")]},
+  {k:"endo", lab:"牙髓狀態", opts:[["vital","活髓"],["rct","根管治療完善"],["need","失活未治療或根管治療不良"]],
+   ev:[ev("ct15","牙髓診斷與治療須在再生手術前完成；失活牙需完成根管治療，不良的根管治療要重做；活髓牙盡量保持活髓。")]}
+ ],
+ bone:[
+  {k:"type", lab:"主要骨缺損型態", opts:[
+    ["intra","骨內缺損","垂直型"],["crater","鄰接面坑狀缺損"],["irreg","骨輪廓不規則／反轉","骨架、外生骨疣、厚鄰接面"],["horiz","水平骨喪失"]],
+   ev:[ev("ree71","根尖片對鄰接面骨內缺損檢出率 98.1%；骨開窗 7.7%、骨開裂 15.8%，頰舌側骨壁在 2D 影像上看不清楚。"),
+       ev("man17","CBCT 不常規使用；在會改變治療計畫時個案評估（專家意見）。")]},
+  {k:"depth", lab:"骨內缺損深度", hint:"骨頂至缺損底，探骨或 X 光", show:s=>s.type==="intra", opts:[["ge3","≥ 3 mm"],["lt3","< 3 mm"]],
+   ev:[ev("s3","R3.7（Grade A）：殘留深囊袋伴隨 ≥ 3 mm 骨內缺損，建議再生手術。"),
+       ev("car00","骨切除適用於淺（1–2 mm）到中等（3–4 mm）的骨內與半隔缺損；作者認為原則上只有 ≤ 3 mm 的缺損適合切除性骨手術。")]},
+  {k:"walls", lab:"骨壁數", hint:"多需術中確認", show:s=>s.type==="intra", opts:[
+    ["3","3 壁"],["2g","2 壁，支撐良好"],["poor","1 壁或支撐不足的 2 壁"],["mix","複合型","深部 3 壁＋冠方淺 1–2 壁"]],
+   ev:[ev("nib20b","每多一壁約多 0.5 mm 附連獲得；骨壁越多，X 光骨增益與附連獲得越好，且與材料無關。"),
+       ev("och95","純 3 壁缺損少見，多數為 1、2、3 壁混合（引 Chodroff & Ammons：130 個缺損只有 16 個純 3 壁）。")]},
+  {k:"angle", lab:"X 光缺損角度", show:s=>s.type==="intra", opts:[["n","≤ 25°"],["m","26–36°"],["w","≥ 37°"]],
+   ev:[ev("ct15","242 個以屏障膜治療的缺損：X 光角度 ≤ 25° 比 ≥ 37° 平均多 1.6 mm 附連獲得。"),
+       ev("tsi04","EMD 治療：角度 ≤ 22° 時附連獲得 > 3 mm 的機率是 ≥ 36° 的 2.46 倍（95% CI 1.017–5.970）。"),
+       ev("nib20b","角度 < 37° 約多 1 mm 附連獲得。")]},
+  {k:"ext", lab:"缺損範圍", hint:"決定翻瓣設計", show:s=>s.type==="intra"&&s.depth==="ge3", opts:[
+    ["mm","侷限牙根 1–2 面","可由頰側小窗清創"],["mi","侷限 1–2 面","頰側無法清創"],["ex","累及 3–4 面且很深","需大範圍視野"]],
+   ev:[ev("ct15","Node 2：缺損累及 1–2 面且可由頰側清創用 M-MIST；頰側無法清創則掀起乳突用 MIST；累及 3–4 面的嚴重深缺損用延伸翻瓣。"),
+       ev("ct09","M-MIST：只翻頰側瓣，牙間乳突原位保留。"),ev("ct07","MIST：限縮近遠心延伸與冠根向掀起，提高翻瓣穩定。")]},
+  {k:"gap", lab:"牙間寬度", hint:"乳突冠方", show:s=>s.type==="intra"&&s.depth==="ge3", opts:[["w",">2 mm"],["n","≤ 2 mm"],["eden","鄰接無牙區"]],
+   ev:[ev("ct15","Node 1：牙間 > 2 mm 用 MPPT；≤ 2 mm 用 SPPF；鄰接無牙區用骨頂切線。"),
+       ev("s3","R3.9（Grade A）：使用最大程度保存牙間軟組織的翻瓣設計，如保存乳突翻瓣；特定情況限縮翻瓣範圍。"),
+       ev("ct95","MPPT 一期封閉 93%。"),ev("ct99","SPPF 一期封閉 100%。")]}
+ ],
+ ph:[
+  {k:"pheno", lab:"牙齦表型", hint:"探針透明法", opts:[["thin","薄","探針可透見（≤ 1.0 mm）"],["thick","厚","探針不可見（> 1.0 mm）"]],
+   ev:[ev("ct18","以探針插入齦溝是否透見判定：≤ 1.0 mm 為薄、> 1.0 mm 為厚；施測者間一致性 85%。")]}
+ ],
+ fu:[
+  {k:"furc", lab:"根岔侵犯", opts:[["no","無"],["yes","有"]]},
+  {k:"floc", lab:"位置", show:s=>s.furc==="yes", opts:[["mand","下顎","頰側或舌側"],["maxb","上顎頰側"],["maxp","上顎近心／遠心","鄰接面"]],
+   ev:[ev("dea06","上顎臼齒根岔箭號：敏感度 38.7%、特異度 92.2%，診斷價值有限。"),
+       ev("sca17","判斷根岔侵犯的正確率：根尖片 56–73%、CBCT 83–100%；適合上顎大臼齒手術前評估。")]},
+  {k:"hamp", lab:"水平分度（Hamp）", show:s=>s.furc==="yes", opts:[["1","一度","< 3 mm"],["2","二度","> 3 mm，未貫通"],["3","三度","貫通"]],
+   ev:[ev("dea06","Hamp 分度定義：一度水平喪失 < 3 mm；二度 > 3 mm 但未及根岔全寬；三度貫通。術前麻醉前與術中清創後的分度一致率：一度 98.4%、二度 83.7%、三度 0%。"),
+       ev("ham75","Hamp 根岔分類與治療系統的原始文獻（5 年追蹤 100 位病人）。")]},
+  {k:"vert", lab:"垂直分類（Tarnow & Fletcher）", hint:"自根岔頂向根尖可探深度", show:s=>s.furc==="yes", opts:[["A","A","1–3 mm"],["B","B","4–6 mm"],["C","C","≥ 7 mm"]],
+   ev:[ev("tar84","以根岔頂向根尖的可探垂直深度分 A（1–3 mm）、B（4–6 mm）、C（≥ 7 mm），與水平分度合併為 IA–IIIC。"),
+       ev("bow03","下顎二級根岔：缺損越深、越廣、骨脊處牙根分開度越大，根岔閉合率越低。")]},
+  {k:"multi", lab:"同一顆牙有多處二度根岔？", show:s=>s.furc==="yes"&&s.hamp==="2"&&s.floc!=="mand", opts:[["n","否"],["y","是"]]}
+ ]
+};
+
+/* ===================== 狀態 ===================== */
+let S = {};
+let cur = 0;
+try{ const sv = JSON.parse(localStorage.getItem("perioDT")||"null"); if(sv&&sv.S){S=sv.S;cur=sv.cur||0;} }catch(e){}
+function save(){ try{localStorage.setItem("perioDT",JSON.stringify({S,cur}));}catch(e){} }
+
+function visibleQs(id){ return (Q[id]||[]).filter(q=>!q.show||q.show(S)); }
+function stepDone(i){ const id=STEPS[i].id; if(id==="res") return false; return visibleQs(id).every(q=>S[q.k]!==undefined); }
+function stopped(){ return S.oh==="poor"||S.ppd==="closed"; }
+function maxReach(){ let i=0; while(i<STEPS.length-1 && stepDone(i)){ if(i===0&&stopped()) return STEPS.length-1; i++; } return i; }
+
+/* ===================== 渲染 ===================== */
+const $=s=>document.querySelector(s);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+let chipId=0;
+function evHTML(list){
+  if(!list||!list.length) return "";
+  const id="e"+(chipId++);
+  let chips="", boxes="";
+  list.forEach((e,i)=>{ const r=R[e.k]; const bid=id+"_"+i;
+    chips+=`<button class="chip" aria-expanded="false" data-box="${bid}">${esc(r.a)}</button>`;
+    boxes+=`<div class="evbox" id="${bid}"><p class="claim">${esc(e.c)}</p><div class="bib">${esc(r.t)}. <i>${esc(r.j)}</i>. ${esc(r.ty)}<span class="tag">${esc(r.src)}</span><br>PMID <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/" target="_blank" rel="noopener">${r.pmid}</a>${r.doi?` ・ DOI <a href="https://doi.org/${r.doi}" target="_blank" rel="noopener">${esc(r.doi)}</a>`:" ・ DOI ⚠ 待確認"}</div></div>`;
+  });
+  return `<div class="ev">${chips}</div>${boxes}`;
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".chip"); if(!c) return;
+  const b=document.getElementById(c.dataset.box); const open=!b.classList.contains("open");
+  c.parentElement.querySelectorAll(".chip").forEach(x=>{x.setAttribute("aria-expanded","false"); const bx=document.getElementById(x.dataset.box); if(bx) bx.classList.remove("open");});
+  if(open){b.classList.add("open");c.setAttribute("aria-expanded","true");}
+});
+
+function renderSteps(){
+  const mr=maxReach();
+  $("#steps").innerHTML=STEPS.map((st,i)=>{
+    const cls=[i===cur?"on":"", i<cur||stepDone(i)?"done":"", i>mr?"lock":""].join(" ");
+    return `<li class="${cls}" data-i="${i}"><div class="bar"></div>${st.name}</li>`;}).join("");
+  document.querySelectorAll("#steps li").forEach(li=>li.onclick=()=>{const i=+li.dataset.i; if(i<=maxReach()){cur=i;render();}});
+}
+
+function stepNotes(id){
+  let h="";
+  if(id==="pt"){
+    if(S.ppd==="closed") h+=`<div class="note ok">已達治療終點：不需手術，進入支持性牙周治療。</div>`;
+    if(S.oh==="poor") h+=`<div class="note stop">口腔清潔未達標：依 EFP S3 R3.6 暫不手術，先回到第一、二步治療。</div>`;
+    if(S.ppd==="mod") h+=`<div class="note warn">4–5 mm 原則上先重複齦下器械治療（R3.1）；若伴隨骨內缺損或根岔侵犯仍要評估手術，可繼續。</div>`;
+    if(S.smk==="heavy") h+=`<div class="note warn">每日 > 10 支：再生結果明顯較差，建議先戒菸介入。</div>`;
+    if(S.sys==="bad") h+=`<div class="note warn">全身狀況未控制：建議控制後再安排再生手術。</div>`;
+  }
+  if(id==="bone"&&S.type==="intra"&&S.depth==="lt3") h+=`<div class="note">&lt; 3 mm 的淺缺損屬切除性骨手術範圍；3 mm 是 R3.7 與 Carnevale 的交界，可依深度與型態調整。</div>`;
+  return h;
+}
+
+function render(){
+  chipId=0; const st=STEPS[cur]; renderSteps();
+  if(st.id==="res"){ renderResult(); save(); return; }
+  const qs=visibleQs(st.id);
+  let h=`<section class="card"><h2>${st.title}</h2><p class="sub">${st.sub}</p>`;
+  qs.forEach(q=>{
+    h+=`<div class="q"><div class="lab">${q.lab}${q.hint?`<span class="hint">${q.hint}</span>`:""}</div><div class="opts">`;
+    q.opts.forEach(o=>{ h+=`<button class="opt${S[q.k]===o[0]?" sel":""}" data-k="${q.k}" data-v="${o[0]}">${o[1]}${o[2]?`<small>${o[2]}</small>`:""}</button>`; });
+    h+=`</div>${evHTML(q.ev)}</div>`;
+  });
+  h+=stepNotes(st.id);
+  h+=`</section><div class="nav"><button class="btn ghost" id="back" ${cur===0?"disabled":""}>上一步</button><button class="btn" id="next" ${stepDone(cur)?"":"disabled"}>${(cur===0&&stopped())?"看結果":"下一步"}</button></div>`;
+  $("#main").innerHTML=h;
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k; S[k]=b.dataset.v;
+    // 清掉已隱藏題目的答案
+    Object.values(Q).flat().forEach(q=>{ if(q.show&&!q.show(S)) delete S[q.k]; });
+    save(); render();
+  });
+  $("#back").onclick=()=>{ if(cur===STEPS.length-1&&stopped()){cur=0;} else cur=Math.max(0,cur-1); render(); window.scrollTo(0,0); };
+  $("#next").onclick=()=>{ cur=(cur===0&&stopped())?STEPS.length-1:cur+1; render(); window.scrollTo(0,0); };
+  save();
+}
+
+/* ===================== 決策邏輯 ===================== */
+function decide(){
+  const out=[]; const sec=(title)=>{const s={title,items:[]};out.push(s);return s;};
+  const add=(s,o)=>s.items.push(o);
+
+  // 0 病人
+  const p=sec("病人與牙齒條件");
+  if(S.ppd==="closed"){ add(p,{g:"A",lvl:"ok",t:"已達治療終點，不需手術",d:"進入支持性牙周治療（SPT）。",ev:[ev("s3","治療終點：沒有 > 4 mm 伴探測出血的囊袋、沒有 ≥ 6 mm 深囊袋；達到者進入支持性牙周照護（p. 14）。")]}); return out; }
+  if(S.oh==="poor"){ add(p,{g:"A",lvl:"stop",t:"暫不手術",d:"自我口腔清潔未達標。先加強口腔衛生指導與危險因子控制，回到第一、二步治療後再評估。",ev:[ev("s3","R3.6（Grade A，強烈共識）：未達到並維持適當自我口腔衛生的病人不做牙周手術。")]}); return out; }
+  if(S.ppd==="mod") add(p,{g:"B",lvl:"warn",t:"4–5 mm：先考慮重複齦下器械治療",d:"EFP 對此深度建議重複齦下器械治療；以下手術建議適用於仍決定手術的位點。",ev:[ev("s3","R3.1（Grade B）：4–5 mm 殘留囊袋建議重複齦下器械治療；≥ 6 mm 建議翻瓣手術。")]});
+  else add(p,{g:"B",t:"殘留 ≥ 6 mm：進入第三步手術治療",d:"",ev:[ev("s3","R3.1（Grade B）：第三期牙周炎第一、二步治療後殘留 ≥ 6 mm，建議翻瓣手術。")]});
+  if(S.oh==="mid") add(p,{g:"E",lvl:"warn",t:"口腔清潔處於邊緣",d:"研究的手術門檻介於 ≤ 15% 到 ≤ 25%；再生手術建議先降到 < 15%。",ev:[ev("ct15","術前 FMPS < 15%、FMBS < 15%。"),ev("kao14","研究門檻 ≤ 15%、≤ 20% 或 ≤ 25%；SORT C。")]});
+  if(S.smk==="heavy") add(p,{g:"A",lvl:"warn",t:"重度吸菸：再生預後差，先戒菸介入",d:"附連獲得約為不吸菸者的四成；長期附連再喪失風險高。",ev:[ev("ct15","> 10 支／日附連獲得 2.1 ± 1.2 mm，不吸菸 5.2 ± 1.9 mm。"),ev("ct04","附連喪失 ≥ 2 mm：吸菸 HR = 7.2。"),ev("s3","R1.6（Grade A）：實施戒菸介入。")]});
+  if(S.smk==="light") add(p,{g:"E",lvl:"warn",t:"輕度吸菸：再生效益打折",d:"吸菸對附連獲得有劑量效應，術前說明預期並鼓勵戒菸。",ev:[ev("ct15","吸菸對附連獲得有劑量依賴的負面影響。"),ev("pat12","吸菸者骨獲得顯著較少。")]});
+  if(S.sys==="bad") add(p,{g:"E",lvl:"warn",t:"全身狀況控制後再手術",d:"",ev:[ev("ct15","未控制的糖尿病或全身疾病屬術前須排除的不利條件。")]});
+  if(S.mob==="2"||S.mob==="3") add(p,{g:"E",t:`Miller ${S.mob==="2"?"二":"三"}度動搖：術前或術後立即固定`,d:"早期癒合期再評估動搖度。",ev:[ev("ct15","Miller 二、三度動搖應在再生手術前或術後立即固定。"),ev("ct01","基線動搖度為 1 年附連獲得的顯著共變項。")]});
+  if(S.endo==="need") add(p,{g:"E",lvl:"warn",t:"先完成根管治療",d:"不良根管治療先重做，再安排再生手術。",ev:[ev("ct15","牙髓治療須在再生手術前完成。")]});
+
+  // 1 骨缺損 → 術式
+  const b=sec("術式");
+  let regen=false;
+  const thin=S.pheno==="thin";
+  if(S.type==="intra"&&S.depth==="ge3"){
+    regen=true;
+    if(S.walls==="mix") add(b,{g:"A",t:"再生手術（可先修整冠方淺壁）",d:"深部以再生處理；冠方淺 1–2 壁可修平，建立平整基底再對深部再生。部分切骨換淺囊袋要付出鄰牙附連代價。",ev:[ev("s3","R3.7（Grade A）：≥ 3 mm 骨內缺損建議再生手術。"),ev("och95","複合型缺損修平冠方淺壁，利於屏障膜貼合、減少塌陷，再對深部再生（專家意見）。"),ev("dur85","部分切除 vs 非切除：附連獲得 0.7 vs 1.1 mm；鄰牙附連喪失 1.2–1.5 vs 0.1–0.9 mm。")]});
+    else add(b,{g:"A",t:"再生手術",d:"比單純翻瓣清創約多 1.3 mm 附連獲得，中長期仍維持優勢。",ev:[ev("s3","R3.7（Grade A）：殘留深囊袋伴隨 ≥ 3 mm 骨內缺損，建議再生手術。"),ev("nib20a","再生 vs 翻瓣清創：附連獲得 +1.34 mm（95% CI 0.95–1.73）；EMD +1.27、GTR +1.43 mm。"),ev("sta21","中長期各再生術式仍優於清創，聯合療法殘留囊袋較淺。")]});
+    // 預後
+    const pro=[];
+    if(S.angle==="n") pro.push("窄角（≤ 25°）"); if(S.angle==="w") pro.push("寬角（≥ 37°）");
+    if(S.walls==="3"||S.walls==="2g") pro.push("骨壁支撐佳"); if(S.walls==="poor") pro.push("骨壁少");
+    const good=(S.angle==="n"?1:S.angle==="w"?-1:0)+((S.walls==="3"||S.walls==="2g")?1:S.walls==="poor"?-1:0);
+    add(b,{g:"E",lvl:good<0?"warn":"",t:`缺損預後：${good>0?"有利":good<0?"較不利":"中等"}`,d:`${pro.join("、")||"角度、骨壁中等"}。缺損越深、越窄、骨壁越多，結果越好，且與材料無關。`,ev:[ev("nib20b","角度 < 37° 約多 1 mm 附連獲得；每多一壁約多 0.5 mm。"),ev("ct15","≤ 25° 比 ≥ 37° 平均多 1.6 mm 附連獲得。"),ev("tsi04","EMD：≤ 22° 時附連獲得 > 3 mm 的勝算是 ≥ 36° 的 2.46 倍。")]});
+  } else if(S.type==="intra"&&S.depth==="lt3"){
+    add(b,{g:"B",t:"切除性骨手術（骨切除＋骨整形）",d:"淺骨內缺損以骨切除消除囊袋，配合根向位移翻瓣。囊袋消除率高，但會增加牙齦退縮與附連喪失。",ev:[ev("car00","骨切除用於淺（1–2 mm）到中等（3–4 mm）骨內與半隔缺損；原則上 ≤ 3 mm 才適合。"),ev("s3","R3.3（Grade B）：第三期牙周炎殘留 ≥ 6 mm，建議切除性手術，但要考量退縮增加。"),ev("fer20","12 個月囊袋消除（PD ≤ 4 mm）98.3%（95% CI 96.8–99.7）；退縮 ORS 2.33 mm、FibReORS 1.72 mm。"),ev("cat81","猴子骨切除：鄰接未受波及牙附連多喪失 1.34 mm。")]});
+  } else if(S.type==="crater"){
+    add(b,{g:"B",t:"切除性骨手術",d:"坑狀缺損以骨切除去除較薄的一側骨壁（常為舌側），做出頰向舌的斜坡（ramping），恢復正向骨形態。",ev:[ev("car00","2 壁鄰接面坑狀缺損多去除舌側骨壁，形成由頰向舌的斜坡；終點是正向骨形態與最淺探測深度。"),ev("s3","R3.3（Grade B）：殘留 ≥ 6 mm 可用切除性手術，需考量退縮。"),ev("fer20","12 個月囊袋消除 98.3%。")]});
+  } else if(S.type==="irreg"){
+    add(b,{g:"E",t:"骨整形（± 骨切除）",d:"骨架、外生骨疣、厚鄰接面與骨形態反轉，以骨整形修整，不移除支持骨；需要時配合骨切除。",ev:[ev("car00","骨整形用於頰舌側骨架或骨隆突、淺頰舌側骨內缺損、厚鄰接面與初期根岔侵犯，不需移除支持骨；骨切除可矯正骨形態反轉。")]});
+  } else if(S.type==="horiz"){
+    add(b,{g:"B",t:"翻瓣清創（存取翻瓣）",d:"無骨內成分，不屬再生適應症。若以囊袋消除為目標，可考慮切除性手術，但 PPD 優勢只在短期。",ev:[ev("s3","R3.1（Grade B）：殘留 ≥ 6 mm 建議翻瓣手術。R3.3（Grade B）：切除性手術 PPD 減少比存取翻瓣 1 年多 0.47 mm，3、5 年差異消失（知識庫整理）。")]});
+  }
+  // 表型對術式的影響
+  if(thin){
+    if(regen) add(b,{g:"I",t:"薄表型：考慮併用結締組織移植",d:"減少術後退縮，證據確定性低；翻瓣設計更要保存乳突。",ev:[ev("ago25","再生手術併用結締組織移植減少退縮 0.981 mm，證據確定性低。"),ev("s3","R3.9（Grade A）：最大程度保存牙間軟組織。")]});
+    else if(S.type&&S.type!=="horiz") add(b,{g:"I",lvl:"warn",t:"薄表型＋切除性手術：退縮風險要先告知",d:"臨床推論：切除性手術本身就增加退縮，薄表型在美觀區更需評估。",ev:[ev("s3","R3.3：切除性手術需考量牙齦退縮增加。"),ev("fer20","切除性骨手術退縮 1.72–2.33 mm。")]});
+  }
+
+  // 翻瓣與材料（骨內再生）
+  if(regen){
+    const f=sec("翻瓣設計");
+    const acc={w:["MPPT（改良式保存乳突技術）","牙間 > 2 mm",["ct95","MPPT 一期封閉 93%、6 週維持 73%。"]],n:["SPPF（簡化保存乳突翻瓣）","牙間 ≤ 2 mm",["ct99","SPPF 一期封閉 100%。"]],eden:["骨頂切線","鄰接無牙區",null]}[S.gap];
+    const fl={mm:["M-MIST","只翻頰側瓣，乳突原位保留",["ct09","M-MIST：只翻頰側瓣，牙間乳突原位不動。"]],mi:["MIST","掀起乳突、限縮翻瓣範圍",["ct07","MIST：限縮近遠心延伸與冠根向掀起。"]],ex:["延伸翻瓣","延伸至鄰牙，可加骨膜切線或垂直切線",null]}[S.ext];
+    if(acc&&fl){
+      const e1=[ev("ct15","Node 1 切線：> 2 mm MPPT、≤ 2 mm SPPF、無牙區骨頂切線；Node 2 翻瓣：M-MIST／MIST／延伸翻瓣。"),ev("s3","R3.9（Grade A）：保存乳突翻瓣，特定情況限縮翻瓣。")];
+      if(acc[2]) e1.push(ev(acc[2][0],acc[2][1])); if(fl[2]) e1.push(ev(fl[2][0],fl[2][1]));
+      add(f,{g:"A",t:`${fl[0]}＋${acc[0]}`,d:`${acc[1]}；${fl[1]}。`,ev:e1});
+    }
+    const m=sec("再生材料");
+    const contained=(S.walls==="3"||S.walls==="2g"||S.walls==="mix");
+    const cTxt=contained?"包覆性缺損":"非包覆性缺損";
+    let mat, md;
+    if(S.ext==="mm"){ mat="不放材料，或單用 EMD"; md="M-MIST 翻瓣本身穩定血塊，任何缺損型態都以不放材料或 EMD 為首選。"; }
+    else if(S.ext==="mi"){ mat=contained?"單用 EMD":"EMD＋骨移植材料"; md=`MIST、${cTxt}。`; }
+    else { mat=contained?"單用 EMD":"屏障膜＋骨移植材料，或 EMD＋骨移植材料"; md=`延伸翻瓣、${cTxt}：${contained?"3 壁為主或支撐良好的 2 壁，單用 EMD 即可":"需要骨移植材料維持空間與穩定"}。`; }
+    add(m,{g:"A",t:mat,d:md+(S.walls==="mix"?" 複合型以修整後深部的骨壁型態判斷。":""),ev:[ev("ct15","Node 3：M-MIST 不放材料或 EMD；MIST 包覆性 EMD、非包覆性 EMD＋骨移植；延伸翻瓣包覆性 EMD，非包覆性屏障膜、屏障膜＋骨移植或 EMD＋骨移植。"),ev("s3","R3.8（Grade A）：使用屏障膜或 EMD，可加或不加骨來源的移植材料。"),ev("koo11","窄、深、3 壁包覆性缺損可單用 EMD。")]});
+    add(m,{g:"E",t:"組合時的注意",d:"EMD 加骨移植的附加效益小；EMD 與屏障膜並用沒有額外效益；骨材能被包覆時不必再加屏障膜。",ev:[ev("mir26","EMD＋骨材 vs 單用 EMD：附連多 0.33 mm（95% CI 0.02–0.64），PPD 差異不顯著。"),ev("tu09","EMD 加屏障膜沒有額外效益；EMD 加牛骨 PPD 多降 0.78 mm、缺損充填多 1.46 mm。"),ev("avi22","包覆性決定是否需要骨材；能包覆骨材時不再加屏障膜。")]});
+  }
+
+  // 3 根岔
+  if(S.furc==="yes"){
+    const fu=sec("根岔處置");
+    const smokeNote=(S.smk==="light"||S.smk==="heavy");
+    const vNote={A:"垂直成分淺（A）",B:"垂直成分中等（B）",C:"垂直成分深（C）"}[S.vert];
+    const baseEv=[ev("s3","R3.10：有殘留囊袋的二、三度根岔臼齒應接受牙周治療（Grade A）；根岔侵犯本身不是拔牙理由（Statement）。"),ev("nib16","根岔侵犯使維護期 10–15 年拔除風險約增為兩倍（RR 2.21）；多數三度根岔臼齒治療後仍反應良好。")];
+    if(S.hamp==="1"){
+      add(fu,{g:"E",t:"一度：齦下清創為主，必要時骨整形",d:"EFP S3 的根岔建議只涵蓋二、三度。一度可在翻瓣時以骨整形修整初期根岔侵犯的骨形態。",ev:[ev("car00","骨整形可用於不需移除支持骨的初期根岔侵犯。"),ev("ham75","Hamp 根岔分類與治療系統原始文獻。")]});
+    } else if(S.hamp==="2"&&S.floc==="mand"){
+      add(fu,{g:"A",t:"下顎二度：再生手術",d:"根岔改善、水平附連與 PPD 皆優於翻瓣清創。完全閉合 0–60%，實際目標是轉為可維護的一度。",ev:[ev("s3","R3.11（Grade A）：下顎二度根岔殘留囊袋建議再生手術（17 篇 RCT，493 人）。"),ev("jep20","再生 vs 翻瓣清創：根岔改善 OR 20.9、水平附連多 1.6 mm；完全閉合 0–60%，轉為一度 29–100%。"),ev("pon87","GTR 6 個月 19/21 二度缺損消除。")]});
+      addFurcMat(fu);
+    } else if(S.hamp==="2"&&S.floc==="maxb"&&S.multi!=="y"){
+      add(fu,{g:"B",t:"上顎頰側二度：再生手術",d:"建議強度低於下顎，證據只有 3 篇小樣本 RCT。",ev:[ev("s3","R3.12（Grade B）：上顎頰側二度根岔殘留囊袋建議再生手術（3 篇 RCT，82 人）。"),ev("met91","上顎二度 GTR vs OFD：附連獲得 1.0 vs 0.2 mm 差異不顯著；沒有完全骨充填。")]});
+      addFurcMat(fu);
+    } else if(S.hamp==="2"&&S.floc==="maxp"&&S.multi!=="y"){
+      add(fu,{g:"Z",t:"上顎鄰接面二度：多種選項",d:"非手術清創、翻瓣清創、再生、分根或切根皆可考慮；再生結果難以預測，依骨喪失程度與牙齒條件決定。上顎臼齒建議術前 CBCT 確認。",ev:[ev("s3","R3.14（Grade 0）：非手術、OFD、再生、分根、切根都可考慮；證據品質低。"),ev("met91","鄰接面放膜不易完全隔離，約半數位點出現退縮。"),ev("dom20","二、三度根岔：切根或分根存活 38–94.4%、OFD 63–85%、SRP 68–80%。"),ev("sca17","CBCT 判斷根岔侵犯正確率 83–100%。")]});
+    } else {
+      const max=S.floc!=="mand";
+      add(fu,{g:"Z",t:(S.hamp==="3"?"三度根岔":"同牙多處二度")+"：非再生為主",d:"非手術清創、翻瓣清創、隧道術、分根或切根都可考慮；切除性手術的存活優勢沒有被證實。"+(max?" 上顎臼齒建議術前 CBCT。":" 下顎三度 EFP 無專屬推薦，比照處理。")+" 若預後不佳，與拔除後植體一併討論。",ev:[ev("s3","R3.15（Grade 0）：上顎三度與同牙多處二度，非手術、OFD、隧道術、分根、切根都可考慮。"),ev("dom20","切根或分根存活 38–94.4%、隧道術 62–67%、OFD 63–85%、SRP 68–80%；二度結果優於三度。"),ev("pon87","下顎三度 GTR：4/16 完全閉合、3/16 仍為三度。"),ev("sanz15","三度根岔臼齒即使規律 SPT，10 年內約 40% 拔除（引述）。")]});
+    }
+    if(vNote&&S.hamp!=="1"){
+      add(fu,{g:"E",lvl:S.vert==="C"?"warn":"",t:vNote,d:S.vert==="C"?"深而廣的根岔缺損閉合率較低，預後下修。若伴隨鄰接面骨內缺損，該部分另依骨內缺損流程評估（臨床推論）。":S.vert==="A"?"淺的垂直成分較有利於根岔改善。":"",ev:[ev("tar84","垂直分類：A 1–3 mm、B 4–6 mm、C ≥ 7 mm。"),ev("bow03","缺損越深、越廣，閉合率越低；水平附連 ≥ 5 mm 的缺損完全閉合只有 53%（全體 74%）。")]});
+    }
+    if(smokeNote&&S.hamp==="2") add(fu,{g:"E",lvl:"warn",t:"吸菸降低根岔閉合",d:"",ev:[ev("bow03","殘留二度比例：吸菸者 62.5%、非吸菸者 14.3%。")]});
+    fu.items.push({g:"",t:"共同原則",d:"",ev:baseEv,small:true});
+  }
+  return out;
+
+  function addFurcMat(fu){
+    add(fu,{g:"A",t:"材料：單用 EMD，或骨移植材料 ± 可吸收膜",d:"含骨移植的方案在水平骨獲得排名最佳；EMD 術後腫痛比不可吸收膜少。共識程度只有簡單多數。",ev:[ev("s3","R3.13（Grade A，簡單多數）：EMD 單獨，或骨來源移植材料加或不加可吸收膜。"),ev("jep20","水平骨獲得：骨移植為最佳治療的機率 61%、EMD 19%、可吸收膜＋骨移植 15%。")]});
+  }
+}
+
+const GL={A:"Grade A",B:"Grade B",Z:"Grade 0",E:"證據",I:"低確定性"};
+function renderResult(){
+  used.clear();
+  const d=decide();
+  let h=`<section class="card"><h2>決策摘要</h2>`;
+  // 路徑
+  const labels=[];
+  Object.entries(Q).forEach(([id,qs])=>qs.forEach(q=>{ if(S[q.k]!==undefined&&(!q.show||q.show(S))){ const o=q.opts.find(o=>o[0]===S[q.k]); if(o) labels.push(`${q.lab.replace(/（.*）/,"")}：${o[1]}`);} }));
+  h+=`<div class="path">${labels.map(l=>`<span>${esc(l)}</span>`).join("")}</div></section>`;
+  h+=`<section class="card">`;
+  d.forEach(s=>{
+    if(!s.items.length) return;
+    h+=`<div class="res-sec"><h3>${s.title}</h3>`;
+    s.items.forEach(it=>{
+      it.ev.forEach(e=>used.add(e.k));
+      h+=`<div class="rec ${it.lvl?"lvl-"+it.lvl:""}"><div class="t">${it.g?`<span class="grade ${it.g}">${GL[it.g]}</span>`:""}${esc(it.t)}</div>${it.d?`<div class="d">${esc(it.d)}</div>`:""}${evHTML(it.ev)}</div>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<div class="legend"><span><span class="grade A">Grade A</span> EFP 強烈建議</span><span><span class="grade B">Grade B</span> 建議</span><span><span class="grade Z">Grade 0</span> 可考慮</span><span><span class="grade E">證據</span> SR／研究支持的補充</span></div></section>`;
+  // 文獻
+  const list=[...used].map(k=>R[k]);
+  h+=`<section class="card refs"><h2>本次引用文獻</h2><ol>${list.map(r=>`<li>${esc(r.a)}. ${esc(r.t)}. <i>${esc(r.j)}</i>. ${esc(r.ty)}<span class="tag">${esc(r.src)}</span> PMID <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/" target="_blank" rel="noopener">${r.pmid}</a>${r.doi?` ・ DOI ${esc(r.doi)}`:" ・ DOI ⚠ 待確認"}</li>`).join("")}</ol></section>`;
+  h+=`<div class="nav"><button class="btn ghost" id="back">上一步</button><span style="display:flex;gap:8px"><button class="btn ghost" id="copy">複製摘要</button><button class="btn" id="reset">重新開始</button></span></div>`;
+  $("#main").innerHTML=h;
+  $("#back").onclick=()=>{ cur=stopped()?0:STEPS.length-2; render(); window.scrollTo(0,0); };
+  $("#reset").onclick=()=>{ S={}; cur=0; used.clear(); render(); window.scrollTo(0,0); };
+  $("#copy").onclick=async()=>{
+    let txt="【牙周手術決策摘要】\n"+labels.join("\n")+"\n";
+    d.forEach(s=>{ if(!s.items.length) return; txt+=`\n■ ${s.title}\n`; s.items.forEach(it=>{ if(it.small) return; txt+=`・${it.g?"["+GL[it.g]+"] ":""}${it.t}${it.d?"："+it.d:""}\n  依據：${it.ev.map(e=>R[e.k].a+"（PMID "+R[e.k].pmid+"）").join("；")}\n`; }); });
+    try{ await navigator.clipboard.writeText(txt); toast("已複製"); }catch(e){ toast("無法複製，請改用截圖"); }
+  };
+}
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1600); }
+
+if(cur>maxReach()) cur=maxReach();
+render();
+</script>
+</body>
+</html>
