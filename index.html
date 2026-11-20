@@ -377,9 +377,9 @@ function decide(){
     const cTxt=contained?"包覆性缺損":"非包覆性缺損";
     let mat, md;
     if(S.ext==="mm"){ mat="不放材料，或單用 EMD"; md="M-MIST 翻瓣本身穩定血塊，任何缺損型態都以不放材料或 EMD 為首選。"; }
-    else if(S.ext==="mi"){ mat=contained?"單用 EMD":"EMD＋骨移植材料"; md=`MIST、${cTxt}。`; }
+    else if(S.ext==="mi"){ mat=contained?"單用 EMD":"EMD＋骨移植材料"; md=`MIST、${cTxt}。`+(contained?"":"MIST 翻瓣範圍小，原本就不是為放屏障膜設計；若判斷需要屏障膜（± 骨移植），翻瓣要改成延伸翻瓣。"); }
     else { mat=contained?"單用 EMD":"屏障膜＋骨移植材料，或 EMD＋骨移植材料"; md=`延伸翻瓣、${cTxt}：${contained?"3 壁為主或支撐良好的 2 壁，單用 EMD 即可":"需要骨移植材料維持空間與穩定"}。`; }
-    add(m,{g:"A",t:mat,d:md+(S.walls==="mix"?" 複合型以修整後深部的骨壁型態判斷。":""),ev:[ev("ct15","Node 3：M-MIST 不放材料或 EMD；MIST 包覆性 EMD、非包覆性 EMD＋骨移植；延伸翻瓣包覆性 EMD，非包覆性屏障膜、屏障膜＋骨移植或 EMD＋骨移植。"),ev("s3","R3.8（Grade A）：使用屏障膜或 EMD，可加或不加骨來源的移植材料。"),ev("koo11","窄、深、3 壁包覆性缺損可單用 EMD。")]});
+    add(m,{g:"A",t:mat,d:md+(S.walls==="mix"?" 複合型以修整後深部的骨壁型態判斷。":""),ev:[ev("ct15","Node 3：M-MIST 不放材料或 EMD；MIST 包覆性 EMD、非包覆性 EMD＋骨移植；延伸翻瓣包覆性 EMD，非包覆性屏障膜、屏障膜＋骨移植或 EMD＋骨移植。"),ev("ct15","MIST 翻瓣的設計不是為了放屏障膜，但很適合使用生物製劑或骨移植材料（p. 18）。"),ev("s3","R3.8（Grade A）：使用屏障膜或 EMD，可加或不加骨來源的移植材料。"),ev("koo11","窄、深、3 壁包覆性缺損可單用 EMD。")]});
     add(m,{g:"E",t:"組合時的注意",d:"EMD 加骨移植的附加效益小；EMD 與屏障膜並用沒有額外效益；骨材能被包覆時不必再加屏障膜。",ev:[ev("mir26","EMD＋骨材 vs 單用 EMD：附連多 0.33 mm（95% CI 0.02–0.64），PPD 差異不顯著。"),ev("tu09","EMD 加屏障膜沒有額外效益；EMD 加牛骨 PPD 多降 0.78 mm、缺損充填多 1.46 mm。"),ev("avi22","包覆性決定是否需要骨材；能包覆骨材時不再加屏障膜。")]});
   }
 
