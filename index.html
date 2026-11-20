@@ -89,7 +89,7 @@ footer{font-size:.78rem;color:var(--muted);margin-top:24px;line-height:1.6}
 <ol class="steps" id="steps"></ol>
 <main id="main"></main>
 <footer>
-  本工具依 2020 EFP S3 臨床指引與相關系統性回顧整理，供牙周病專科醫師臨床判斷參考，不取代個案評估。文獻標示：「全文 md」＝依知識庫原文全文核對；「全文 PDF」＝依原文 PDF 核對；「知識庫」＝課程講義已核對原文；「摘要」＝僅依 PubMed 摘要。標「臨床推論」者非文獻直接結論。<br>
+  本工具依 2020 EFP S3 臨床指引與相關系統性回顧整理，供牙周病專科醫師臨床判斷參考，不取代個案評估。標「臨床推論」者非文獻直接結論。<br>
   三軍總醫院 牙周病科 陳穎吾
 </footer>
 </div>
@@ -255,7 +255,7 @@ function evHTML(list){
   let chips="", boxes="";
   list.forEach((e,i)=>{ const r=R[e.k]; const bid=id+"_"+i;
     chips+=`<button class="chip" aria-expanded="false" data-box="${bid}">${esc(r.a)}</button>`;
-    boxes+=`<div class="evbox" id="${bid}"><p class="claim">${esc(e.c)}</p><div class="bib">${esc(r.t)}. <i>${esc(r.j)}</i>. ${esc(r.ty)}<span class="tag">${esc(r.src)}</span><br>PMID <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/" target="_blank" rel="noopener">${r.pmid}</a>${r.doi?` ・ DOI <a href="https://doi.org/${r.doi}" target="_blank" rel="noopener">${esc(r.doi)}</a>`:" ・ DOI ⚠ 待確認"}</div></div>`;
+    boxes+=`<div class="evbox" id="${bid}"><p class="claim">${esc(e.c)}</p><div class="bib">${esc(r.t)}. <i>${esc(r.j)}</i>. ${esc(r.ty)}<br>PMID <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/" target="_blank" rel="noopener">${r.pmid}</a>${r.doi?` ・ DOI <a href="https://doi.org/${r.doi}" target="_blank" rel="noopener">${esc(r.doi)}</a>`:" ・ DOI ⚠ 待確認"}</div></div>`;
   });
   return `<div class="ev">${chips}</div>${boxes}`;
 }
@@ -450,7 +450,7 @@ function renderResult(){
   h+=`<div class="legend"><span><span class="grade A">Grade A</span> EFP 強烈建議</span><span><span class="grade B">Grade B</span> 建議</span><span><span class="grade Z">Grade 0</span> 可考慮</span><span><span class="grade E">證據</span> SR／研究支持的補充</span></div></section>`;
   // 文獻
   const list=[...used].map(k=>R[k]);
-  h+=`<section class="card refs"><h2>本次引用文獻</h2><ol>${list.map(r=>`<li>${esc(r.a)}. ${esc(r.t)}. <i>${esc(r.j)}</i>. ${esc(r.ty)}<span class="tag">${esc(r.src)}</span> PMID <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/" target="_blank" rel="noopener">${r.pmid}</a>${r.doi?` ・ DOI ${esc(r.doi)}`:" ・ DOI ⚠ 待確認"}</li>`).join("")}</ol></section>`;
+  h+=`<section class="card refs"><h2>本次引用文獻</h2><ol>${list.map(r=>`<li>${esc(r.a)}. ${esc(r.t)}. <i>${esc(r.j)}</i>. ${esc(r.ty)} PMID <a href="https://pubmed.ncbi.nlm.nih.gov/${r.pmid}/" target="_blank" rel="noopener">${r.pmid}</a>${r.doi?` ・ DOI ${esc(r.doi)}`:" ・ DOI ⚠ 待確認"}</li>`).join("")}</ol></section>`;
   h+=`<div class="nav"><button class="btn ghost" id="back">上一步</button><span style="display:flex;gap:8px"><button class="btn ghost" id="copy">複製摘要</button><button class="btn" id="reset">重新開始</button></span></div>`;
   $("#main").innerHTML=h;
   $("#back").onclick=()=>{ cur=stopped()?0:STEPS.length-2; render(); window.scrollTo(0,0); };
