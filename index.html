@@ -31,6 +31,8 @@ header p{margin:0;color:var(--muted);font-size:.92rem}
 .card .sub{color:var(--muted);font-size:.9rem;margin:0 0 14px}
 .q{margin:18px 0 6px}
 .q:first-of-type{margin-top:6px}
+.q.miss{outline:2px solid var(--red);outline-offset:6px;border-radius:8px;scroll-margin-top:90px}
+.q.miss .lab::after{content:"必填";font-size:.72rem;color:#fff;background:var(--red);border-radius:4px;padding:0 6px;font-weight:700}
 .q .lab{font-weight:700;font-size:.98rem;margin-bottom:8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .q .hint{font-weight:400;color:var(--muted);font-size:.82rem}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
@@ -133,6 +135,10 @@ const R = {
  ct95:{a:"Cortellini 1995",t:"The modified papilla preservation technique. A new surgical approach for interproximal regenerative procedures",j:"J Periodontol",pmid:"7782979",doi:"10.1902/jop.1995.66.4.261",ty:"病例系列",src:"知識庫"},
  ct99:{a:"Cortellini 1999",t:"The simplified papilla preservation flap. A novel surgical approach for the management of soft tissues in regenerative procedures",j:"Int J Periodontics Restorative Dent",pmid:"10815597",doi:null,ty:"病例系列",src:"知識庫"},
  ct07:{a:"Cortellini 2007",t:"A minimally invasive surgical technique with an enamel matrix derivative in the regenerative treatment of intra-bony defects: a novel approach to limit morbidity",j:"J Clin Periodontol",pmid:"17243998",doi:"10.1111/j.1600-051X.2006.01020.x",ty:"病例系列",src:"摘要"},
+ kerry82:{a:"Kerry 1982",t:"Effect of periodontal treatment on tooth mobility",j:"J Periodontol",pmid:"6754904",doi:"10.1902/jop.1982.53.10.635",ty:"臨床研究",src:"全文 md"},
+ sch00:{a:"Schulz 2000",t:"The effect of splinting of teeth in combination with reconstructive periodontal surgery in humans",j:"Clin Oral Investig",pmid:"11218508",doi:"10.1007/s007840050123",ty:"小型臨床研究",src:"知識庫"},
+ dom21:{a:"Dommisch 2021",t:"Efficacy of tooth splinting and occlusal adjustment in patients with periodontitis exhibiting masticatory dysfunction: A systematic review",j:"J Clin Periodontol",pmid:"34854115",doi:"10.1111/jcpe.13563",ty:"SR",src:"知識庫"},
+ her22:{a:"Herrera 2022（EFP S3 第四期）",t:"Treatment of stage IV periodontitis: The EFP S3 level clinical practice guideline",j:"J Clin Periodontol",pmid:"35688447",doi:"10.1111/jcpe.13639",ty:"臨床指引",src:"全文 md"},
  ct09:{a:"Cortellini 2009",t:"Improved wound stability with a modified minimally invasive surgical technique in the regenerative treatment of isolated interdental intrabony defects",j:"J Clin Periodontol",pmid:"19207892",doi:"10.1111/j.1600-051X.2008.01352.x",ty:"病例系列",src:"摘要"}
 };
 const used = new Set();
@@ -165,8 +171,9 @@ const Q = {
   {k:"sys", lab:"全身狀況", opts:[["ok","無或控制良好"],["bad","糖尿病或其他全身疾病控制不佳"]],
    ev:[ev("ct15","術前須先確立：沒有吸菸、壓力、未控制的糖尿病或其他全身疾病等不利條件（Flow chart 1）。")]},
   {k:"mob", lab:"患牙動搖度", hint:"Miller", opts:[["0","生理性／一度"],["2","二度"],["3","三度"]],
-   ev:[ev("ct15","Miller 二、三度動搖的牙齒，應在再生手術前或術後立即固定；早期癒合期要再評估動搖度。"),
-       ev("ct01","多中心 RCT：基線動搖度是 1 年附連獲得的顯著共變項（P = 0.036）。")]},
+   ev:[ev("ct15","再生手術：Miller 二、三度動搖的牙齒，應在術前或術後立即固定；早期癒合期要再評估動搖度。"),
+       ev("ct01","再生手術多中心 RCT：基線動搖度是 1 年附連獲得的顯著共變項（P = 0.036）。"),
+       ev("kerry82","囊袋消除手術（含骨手術）後 1 個月動搖度暫時上升，1 年回到術前水準；改良式 Widman 翻瓣與齦下刮除不影響動搖度。")]},
   {k:"endo", lab:"牙髓狀態", opts:[["vital","活髓"],["rct","根管治療完善"],["need","失活未治療或根管治療不良"]],
    ev:[ev("ct15","牙髓診斷與治療須在再生手術前完成；失活牙需完成根管治療，不良的根管治療要重做；活髓牙盡量保持活髓。")]}
  ],
@@ -217,6 +224,7 @@ const Q = {
 /* ===================== 狀態 ===================== */
 let S = {};
 let cur = 0;
+let showMiss = false;
 try{ const sv = JSON.parse(localStorage.getItem("perioDT")||"null"); if(sv&&sv.S){S=sv.S;cur=sv.cur||0;} }catch(e){}
 function save(){ try{localStorage.setItem("perioDT",JSON.stringify({S,cur}));}catch(e){} }
 
@@ -251,7 +259,7 @@ function renderSteps(){
   $("#steps").innerHTML=STEPS.map((st,i)=>{
     const cls=[i===cur?"on":"", i<cur||stepDone(i)?"done":"", i>mr?"lock":""].join(" ");
     return `<li class="${cls}" data-i="${i}"><div class="bar"></div>${st.name}</li>`;}).join("");
-  document.querySelectorAll("#steps li").forEach(li=>li.onclick=()=>{const i=+li.dataset.i; if(i<=maxReach()){cur=i;render();}});
+  document.querySelectorAll("#steps li").forEach(li=>li.onclick=()=>{const i=+li.dataset.i; if(i<=maxReach()){showMiss=false;cur=i;render();}});
 }
 
 function stepNotes(id){
@@ -273,12 +281,13 @@ function render(){
   const qs=visibleQs(st.id);
   let h=`<section class="card"><h2>${st.title}</h2><p class="sub">${st.sub}</p>`;
   qs.forEach(q=>{
-    h+=`<div class="q"><div class="lab">${q.lab}${q.hint?`<span class="hint">${q.hint}</span>`:""}</div><div class="opts">`;
+    const miss=showMiss&&S[q.k]===undefined;
+    h+=`<div class="q${miss?" miss":""}" data-q="${q.k}"><div class="lab">${q.lab}${q.hint?`<span class="hint">${q.hint}</span>`:""}</div><div class="opts">`;
     q.opts.forEach(o=>{ h+=`<button class="opt${S[q.k]===o[0]?" sel":""}" data-k="${q.k}" data-v="${o[0]}">${o[1]}${o[2]?`<small>${o[2]}</small>`:""}</button>`; });
     h+=`</div>${evHTML(q.ev)}</div>`;
   });
   h+=stepNotes(st.id);
-  h+=`</section><div class="nav"><button class="btn ghost" id="back" ${cur===0?"disabled":""}>上一步</button><button class="btn" id="next" ${stepDone(cur)?"":"disabled"}>${(cur===0&&stopped())?"看結果":"下一步"}</button></div>`;
+  h+=`</section><div class="nav"><button class="btn ghost" id="back" ${cur===0?"disabled":""}>上一步</button><button class="btn" id="next">${(cur===0&&stopped())?"看結果":"下一步"}</button></div>`;
   $("#main").innerHTML=h;
   document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
     const k=b.dataset.k; S[k]=b.dataset.v;
@@ -286,8 +295,16 @@ function render(){
     Object.values(Q).flat().forEach(q=>{ if(q.show&&!q.show(S)) delete S[q.k]; });
     save(); render();
   });
-  $("#back").onclick=()=>{ if(cur===STEPS.length-1&&stopped()){cur=0;} else cur=Math.max(0,cur-1); render(); window.scrollTo(0,0); };
-  $("#next").onclick=()=>{ cur=(cur===0&&stopped())?STEPS.length-1:cur+1; render(); window.scrollTo(0,0); };
+  $("#back").onclick=()=>{ showMiss=false; if(cur===STEPS.length-1&&stopped()){cur=0;} else cur=Math.max(0,cur-1); render(); window.scrollTo(0,0); };
+  $("#next").onclick=()=>{
+    if(!stepDone(cur)){
+      showMiss=true; render();
+      const first=document.querySelector(".q.miss");
+      if(first) first.scrollIntoView({behavior:"smooth",block:"center"});
+      toast("還有必填項目未選");
+      return;
+    }
+    showMiss=false; cur=(cur===0&&stopped())?STEPS.length-1:cur+1; render(); window.scrollTo(0,0); };
   save();
 }
 
@@ -306,7 +323,6 @@ function decide(){
   if(S.smk==="heavy") add(p,{g:"A",lvl:"warn",t:"重度吸菸：再生預後差，先戒菸介入",d:"附連獲得約為不吸菸者的四成；長期附連再喪失風險高。",ev:[ev("ct15","> 10 支／日附連獲得 2.1 ± 1.2 mm，不吸菸 5.2 ± 1.9 mm。"),ev("ct04","附連喪失 ≥ 2 mm：吸菸 HR = 7.2。"),ev("s3","R1.6（Grade A）：實施戒菸介入。")]});
   if(S.smk==="light") add(p,{g:"E",lvl:"warn",t:"輕度吸菸：再生效益打折",d:"吸菸對附連獲得有劑量效應，術前說明預期並鼓勵戒菸。",ev:[ev("ct15","吸菸對附連獲得有劑量依賴的負面影響。"),ev("pat12","吸菸者骨獲得顯著較少。")]});
   if(S.sys==="bad") add(p,{g:"E",lvl:"warn",t:"全身狀況控制後再手術",d:"",ev:[ev("ct15","未控制的糖尿病或全身疾病屬術前須排除的不利條件。")]});
-  if(S.mob==="2"||S.mob==="3") add(p,{g:"E",t:`Miller ${S.mob==="2"?"二":"三"}度動搖：術前或術後立即固定`,d:"早期癒合期再評估動搖度。",ev:[ev("ct15","Miller 二、三度動搖應在再生手術前或術後立即固定。"),ev("ct01","基線動搖度為 1 年附連獲得的顯著共變項。")]});
   if(S.endo==="need") add(p,{g:"E",lvl:"warn",t:"先完成根管治療",d:"不良根管治療先重做，再安排再生手術。",ev:[ev("ct15","牙髓治療須在再生手術前完成。")]});
 
   // 1 骨缺損 → 術式
@@ -331,6 +347,14 @@ function decide(){
     add(b,{g:"E",t:"骨整形（± 骨切除）",d:"骨架、外生骨疣、厚鄰接面與骨形態反轉，以骨整形修整，不移除支持骨；需要時配合骨切除。",ev:[ev("car00","骨整形用於頰舌側骨架或骨隆突、淺頰舌側骨內缺損、厚鄰接面與初期根岔侵犯，不需移除支持骨；骨切除可矯正骨形態反轉。")]});
   } else if(S.type==="horiz"){
     add(b,{g:"B",t:"翻瓣清創（存取翻瓣）",d:"無骨內成分，不屬再生適應症。若以囊袋消除為目標，可考慮切除性手術，但 PPD 優勢只在短期。",ev:[ev("s3","R3.1（Grade B）：殘留 ≥ 6 mm 建議翻瓣手術。R3.3（Grade B）：切除性手術 PPD 減少比存取翻瓣 1 年多 0.47 mm，3、5 年差異消失（知識庫整理）。")]});
+  }
+  // 動搖度與固定：依術式
+  const resect=(S.type==="intra"&&S.depth==="lt3")||S.type==="crater"||S.type==="irreg";
+  const mobTxt=S.mob==="2"?"二":"三";
+  if((S.mob==="2"||S.mob==="3")&&regen){
+    add(b,{g:"E",t:`Miller ${mobTxt}度動搖：再生手術前或術後立即固定`,d:"目的是穩定傷口與血塊；早期癒合期再評估動搖度。直接證據只有一篇小型研究，且不是用 EMD 或屏障膜。",ev:[ev("ct15","Miller 二、三度動搖應在再生手術前或術後立即固定。"),ev("ct01","基線動搖度為 1 年附連獲得的顯著共變項（P = 0.036）。"),ev("sch00","骨移植手術 48 週附連獲得：術前固定 5.1 mm、拆線時固定 3.5 mm、不固定 1.7 mm（每組 11–12 人）。")]});
+  } else if((S.mob==="2"||S.mob==="3")&&(resect||S.type==="horiz")){
+    add(b,{g:"Z",t:`Miller ${mobTxt}度動搖：${resect?"切除性手術":"翻瓣清創"}不需常規固定`,d:(resect?"切除性骨手術後 1 個月動搖度會暫時上升，1 年回到術前水準，術前要先告知。":"翻瓣清創不影響動搖度。")+"固定不會提高牙齒存活；動搖影響咀嚼舒適時，可考慮暫時固定（第四期病人）。",ev:[ev("kerry82","囊袋消除手術（含骨手術）後 1 個月動搖度暫時上升，1 年回到術前水準；作者認為是手術創傷反應，不是骨高度降低。改良式 Widman 翻瓣不影響動搖度。"),ev("her22","R6.1（Grade O，證據極低）：第四期牙周炎動搖過大的牙齒，可在各步治療中考慮暫時固定，以提升舒適度並利於治療。"),ev("dom21","牙齒喪失：固定 8.4%、未固定 10.1%（2 篇回溯性研究，未做統計比較）。")]});
   }
   // 表型對術式的影響
   if(thin){
