@@ -89,7 +89,7 @@ footer{font-size:.78rem;color:var(--muted);margin-top:24px;line-height:1.6}
 <ol class="steps" id="steps"></ol>
 <main id="main"></main>
 <footer>
-  本工具依 2020 EFP S3 臨床指引與相關系統性回顧整理，供牙周病專科醫師臨床判斷參考，不取代個案評估。文獻標示：「全文 md」＝依原文全文核對；「知識庫」＝課程講義已核對原文；「摘要」＝僅依 PubMed 摘要。標「臨床推論」者非文獻直接結論。<br>
+  本工具依 2020 EFP S3 臨床指引與相關系統性回顧整理，供牙周病專科醫師臨床判斷參考，不取代個案評估。文獻標示：「全文 md」＝依知識庫原文全文核對；「全文 PDF」＝依原文 PDF 核對；「知識庫」＝課程講義已核對原文；「摘要」＝僅依 PubMed 摘要。標「臨床推論」者非文獻直接結論。<br>
   三軍總醫院 牙周病科 陳穎吾
 </footer>
 </div>
@@ -135,6 +135,13 @@ const R = {
  ct95:{a:"Cortellini 1995",t:"The modified papilla preservation technique. A new surgical approach for interproximal regenerative procedures",j:"J Periodontol",pmid:"7782979",doi:"10.1902/jop.1995.66.4.261",ty:"病例系列",src:"知識庫"},
  ct99:{a:"Cortellini 1999",t:"The simplified papilla preservation flap. A novel surgical approach for the management of soft tissues in regenerative procedures",j:"Int J Periodontics Restorative Dent",pmid:"10815597",doi:null,ty:"病例系列",src:"知識庫"},
  ct07:{a:"Cortellini 2007",t:"A minimally invasive surgical technique with an enamel matrix derivative in the regenerative treatment of intra-bony defects: a novel approach to limit morbidity",j:"J Clin Periodontol",pmid:"17243998",doi:"10.1111/j.1600-051X.2006.01020.x",ty:"病例系列",src:"摘要"},
+ polak20:{a:"Polak 2020",t:"The efficacy of pocket elimination/reduction compared to access flap surgery: A systematic review and meta-analysis",j:"J Clin Periodontol",pmid:"31912516",doi:"10.1111/jcpe.13246",ty:"SR／MA",src:"全文 PDF"},
+ tsai20:{a:"Tsai 2020",t:"Systematic review and sequential network meta-analysis on the efficacy of periodontal regenerative therapies",j:"J Clin Periodontol",pmid:"32592595",doi:"10.1111/jcpe.13338",ty:"SR／序列 NMA",src:"全文 PDF"},
+ graz15:{a:"Graziani 2015",t:"Clinical performance of access flap in the treatment of class II furcation defects. A systematic review and meta-analysis of randomized clinical trials",j:"J Clin Periodontol",pmid:"25360693",doi:"10.1111/jcpe.12327",ty:"SR／MA",src:"全文 PDF"},
+ chen24:{a:"Chen 2024",t:"The survival of periodontally treated molars in long-term maintenance: A systematic review and meta-analysis",j:"J Clin Periodontol",pmid:"38317331",doi:"10.1111/jcpe.13951",ty:"SR／MA",src:"全文 PDF"},
+ disc25:{a:"Discepoli 2025",t:"Accuracy of Ionizing-Radiation-Based and Non-Ionizing Imaging Assessments for the Diagnosis of Periodontitis: A Systematic Review and Meta-Analysis",j:"J Clin Periodontol",pmid:"39939533",doi:"10.1111/jcpe.14137",ty:"SR／MA",src:"全文 PDF"},
+ nik16:{a:"Nikolic-Jakoba 2016",t:"Cone-Beam Computed Tomography for Detection of Intrabony and Furcation Defects: A Systematic Review Based on a Hierarchical Model for Diagnostic Efficacy",j:"J Periodontol",pmid:"26876352",doi:"10.1902/jop.2016.150636",ty:"SR",src:"全文 PDF"},
+ mik25:{a:"Mikami 2025",t:"Effect of Tooth Splinting on Clinical Outcomes following Periodontal Regenerative Therapy",j:"J Clin Periodontol",pmid:"40474381",doi:"10.1111/jcpe.14190",ty:"前瞻性世代研究（傾向分數配對）",src:"全文 PDF"},
  kerry82:{a:"Kerry 1982",t:"Effect of periodontal treatment on tooth mobility",j:"J Periodontol",pmid:"6754904",doi:"10.1902/jop.1982.53.10.635",ty:"臨床研究",src:"全文 md"},
  sch00:{a:"Schulz 2000",t:"The effect of splinting of teeth in combination with reconstructive periodontal surgery in humans",j:"Clin Oral Investig",pmid:"11218508",doi:"10.1007/s007840050123",ty:"小型臨床研究",src:"知識庫"},
  dom21:{a:"Dommisch 2021",t:"Efficacy of tooth splinting and occlusal adjustment in patients with periodontitis exhibiting masticatory dysfunction: A systematic review",j:"J Clin Periodontol",pmid:"34854115",doi:"10.1111/jcpe.13563",ty:"SR",src:"知識庫"},
@@ -173,15 +180,18 @@ const Q = {
   {k:"mob", lab:"患牙動搖度", hint:"Miller", opts:[["0","生理性／一度"],["2","二度"],["3","三度"]],
    ev:[ev("ct15","再生手術：Miller 二、三度動搖的牙齒，應在術前或術後立即固定；早期癒合期要再評估動搖度。"),
        ev("ct01","再生手術多中心 RCT：基線動搖度是 1 年附連獲得的顯著共變項（P = 0.036）。"),
-       ev("kerry82","囊袋消除手術（含骨手術）後 1 個月動搖度暫時上升，1 年回到術前水準；改良式 Widman 翻瓣與齦下刮除不影響動搖度。")]},
+       ev("kerry82","囊袋消除手術（含骨手術）後 1 個月動搖度暫時上升，1 年回到術前水準；改良式 Widman 翻瓣與齦下刮除不影響動搖度。"),
+       ev("mik25","EMD 再生、動搖 0–1 度的骨內缺損：固定與不固定在 1、3 年的附連水平、PD、X 光缺損深度都沒有顯著差異（每組 37 個位點）。")]},
   {k:"endo", lab:"牙髓狀態", opts:[["vital","活髓"],["rct","根管治療完善"],["need","失活未治療或根管治療不良"]],
-   ev:[ev("ct15","牙髓診斷與治療須在再生手術前完成；失活牙需完成根管治療，不良的根管治療要重做；活髓牙盡量保持活髓。")]}
+   ev:[ev("ct15","牙髓診斷與治療須在再生手術前完成；失活牙需完成根管治療，不良的根管治療要重做；活髓牙盡量保持活髓。"),
+       ev("chen24","維護期大臼齒：牙髓失活者拔除風險 RR 2.72（95% CI 1.76–4.22）（p. 643）。")]}
  ],
  bone:[
   {k:"type", lab:"主要骨缺損型態", opts:[
     ["intra","骨內缺損","垂直型"],["crater","鄰接面坑狀缺損"],["irreg","骨輪廓不規則／反轉","骨架、外生骨疣、厚鄰接面"],["horiz","水平骨喪失"]],
    ev:[ev("ree71","根尖片對鄰接面骨內缺損檢出率 98.1%；骨開窗 7.7%、骨開裂 15.8%，頰舌側骨壁在 2D 影像上看不清楚。"),
-       ev("man17","CBCT 不常規使用；在會改變治療計畫時個案評估（專家意見）。")]},
+       ev("man17","CBCT 不常規使用；在會改變治療計畫時個案評估（專家意見）。"),
+       ev("nik16","證據不足以支持用 CBCT 診斷或規劃骨內缺損與根岔缺損；研究多停在診斷準確度層級，沒有評估治療或病人結果。")]},
   {k:"depth", lab:"骨內缺損深度", hint:"骨頂至缺損底，探骨或 X 光", show:s=>s.type==="intra", opts:[["ge3","≥ 3 mm"],["lt3","< 3 mm"]],
    ev:[ev("s3","R3.7（Grade A）：殘留深囊袋伴隨 ≥ 3 mm 骨內缺損，建議再生手術。"),
        ev("car00","骨切除適用於淺（1–2 mm）到中等（3–4 mm）的骨內與半隔缺損；作者認為原則上只有 ≤ 3 mm 的缺損適合切除性骨手術。")]},
@@ -210,7 +220,9 @@ const Q = {
   {k:"furc", lab:"根岔侵犯", opts:[["no","無"],["yes","有"]]},
   {k:"floc", lab:"位置", show:s=>s.furc==="yes", opts:[["mand","下顎","頰側或舌側"],["maxb","上顎頰側"],["maxp","上顎近心／遠心","鄰接面"]],
    ev:[ev("dea06","上顎臼齒根岔箭號：敏感度 38.7%、特異度 92.2%，診斷價值有限。"),
-       ev("sca17","判斷根岔侵犯的正確率：根尖片 56–73%、CBCT 83–100%；適合上顎大臼齒手術前評估。")]},
+       ev("sca17","判斷根岔侵犯的正確率：根尖片 56–73%、CBCT 83–100%；適合上顎大臼齒手術前評估。"),
+       ev("disc25","CBCT 偵測根岔侵犯（對照術中測量，3 篇研究）：合併敏感度 0.98、特異度 0.98。"),
+       ev("nik16","較早的 SR 認為證據不足以支持用 CBCT 規劃根岔治療；研究層級偏低。")]},
   {k:"hamp", lab:"水平分度（Hamp）", show:s=>s.furc==="yes", opts:[["1","一度","< 3 mm"],["2","二度","> 3 mm，未貫通"],["3","三度","貫通"]],
    ev:[ev("dea06","Hamp 分度定義：一度水平喪失 < 3 mm；二度 > 3 mm 但未及根岔全寬；三度貫通。術前麻醉前與術中清創後的分度一致率：一度 98.4%、二度 83.7%、三度 0%。"),
        ev("ham75","Hamp 根岔分類與治療系統的原始文獻（5 年追蹤 100 位病人）。")]},
@@ -340,19 +352,19 @@ function decide(){
     const good=(S.angle==="n"?1:S.angle==="w"?-1:0)+((S.walls==="3"||S.walls==="2g")?1:S.walls==="poor"?-1:0);
     add(b,{g:"E",lvl:good<0?"warn":"",t:`缺損預後：${good>0?"有利":good<0?"較不利":"中等"}`,d:`${pro.join("、")||"角度、骨壁中等"}。缺損越深、越窄、骨壁越多，結果越好，且與材料無關。`,ev:[ev("nib20b","角度 < 37° 約多 1 mm 附連獲得；每多一壁約多 0.5 mm。"),ev("ct15","≤ 25° 比 ≥ 37° 平均多 1.6 mm 附連獲得。"),ev("tsi04","EMD：≤ 22° 時附連獲得 > 3 mm 的勝算是 ≥ 36° 的 2.46 倍。")]});
   } else if(S.type==="intra"&&S.depth==="lt3"){
-    add(b,{g:"B",t:"切除性骨手術（骨切除＋骨整形）",d:"淺骨內缺損以骨切除消除囊袋，配合根向位移翻瓣。囊袋消除率高，但會增加牙齦退縮與附連喪失。",ev:[ev("car00","骨切除用於淺（1–2 mm）到中等（3–4 mm）骨內與半隔缺損；原則上 ≤ 3 mm 才適合。"),ev("s3","R3.3（Grade B）：第三期牙周炎殘留 ≥ 6 mm，建議切除性手術，但要考量退縮增加。"),ev("fer20","12 個月囊袋消除（PD ≤ 4 mm）98.3%（95% CI 96.8–99.7）；退縮 ORS 2.33 mm、FibReORS 1.72 mm。"),ev("cat81","猴子骨切除：鄰接未受波及牙附連多喪失 1.34 mm。")]});
+    add(b,{g:"B",t:"切除性骨手術（骨切除＋骨整形）",d:"淺骨內缺損以骨切除消除囊袋，配合根向位移翻瓣。囊袋消除率高，但會增加牙齦退縮與附連喪失。",ev:[ev("car00","骨切除用於淺（1–2 mm）到中等（3–4 mm）骨內與半隔缺損；原則上 ≤ 3 mm 才適合。"),ev("s3","R3.3（Grade B）：第三期牙周炎殘留 ≥ 6 mm，建議切除性手術，但要考量退縮增加。"),ev("fer20","12 個月囊袋消除（PD ≤ 4 mm）98.3%（95% CI 96.8–99.7）；退縮 ORS 2.33 mm、FibReORS 1.72 mm。"),ev("polak20","切除性 vs 翻瓣清創（9 篇 RCT）：6–12 個月 PPD 多減 0.47 mm；36–60 個月 PPD 與附連水平無差異；切除性術後退縮傾向較大。"),ev("cat81","猴子骨切除：鄰接未受波及牙附連多喪失 1.34 mm。")]});
   } else if(S.type==="crater"){
-    add(b,{g:"B",t:"切除性骨手術",d:"坑狀缺損以骨切除去除較薄的一側骨壁（常為舌側），做出頰向舌的斜坡（ramping），恢復正向骨形態。",ev:[ev("car00","2 壁鄰接面坑狀缺損多去除舌側骨壁，形成由頰向舌的斜坡；終點是正向骨形態與最淺探測深度。"),ev("s3","R3.3（Grade B）：殘留 ≥ 6 mm 可用切除性手術，需考量退縮。"),ev("fer20","12 個月囊袋消除 98.3%。")]});
+    add(b,{g:"B",t:"切除性骨手術",d:"坑狀缺損以骨切除去除較薄的一側骨壁（常為舌側），做出頰向舌的斜坡（ramping），恢復正向骨形態。",ev:[ev("car00","2 壁鄰接面坑狀缺損多去除舌側骨壁，形成由頰向舌的斜坡；終點是正向骨形態與最淺探測深度。"),ev("s3","R3.3（Grade B）：殘留 ≥ 6 mm 可用切除性手術，需考量退縮。"),ev("fer20","12 個月囊袋消除 98.3%。"),ev("polak20","PPD 優勢只在 6–12 個月（多 0.47 mm），3–5 年與翻瓣清創無差異。")]});
   } else if(S.type==="irreg"){
     add(b,{g:"E",t:"骨整形（± 骨切除）",d:"骨架、外生骨疣、厚鄰接面與骨形態反轉，以骨整形修整，不移除支持骨；需要時配合骨切除。",ev:[ev("car00","骨整形用於頰舌側骨架或骨隆突、淺頰舌側骨內缺損、厚鄰接面與初期根岔侵犯，不需移除支持骨；骨切除可矯正骨形態反轉。")]});
   } else if(S.type==="horiz"){
-    add(b,{g:"B",t:"翻瓣清創（存取翻瓣）",d:"無骨內成分，不屬再生適應症。若以囊袋消除為目標，可考慮切除性手術，但 PPD 優勢只在短期。",ev:[ev("s3","R3.1（Grade B）：殘留 ≥ 6 mm 建議翻瓣手術。R3.3（Grade B）：切除性手術 PPD 減少比存取翻瓣 1 年多 0.47 mm，3、5 年差異消失（知識庫整理）。")]});
+    add(b,{g:"B",t:"翻瓣清創（存取翻瓣）",d:"無骨內成分，不屬再生適應症。若以囊袋消除為目標，可考慮切除性手術，但 PPD 優勢只在短期。",ev:[ev("s3","R3.1（Grade B）：殘留 ≥ 6 mm 建議翻瓣手術。"),ev("polak20","切除性 vs 翻瓣清創：6–12 個月 PPD 多減 0.47 mm；36–60 個月 PPD 與附連水平無差異；不良事件發生率相近。")]});
   }
   // 動搖度與固定：依術式
   const resect=(S.type==="intra"&&S.depth==="lt3")||S.type==="crater"||S.type==="irreg";
   const mobTxt=S.mob==="2"?"二":"三";
   if((S.mob==="2"||S.mob==="3")&&regen){
-    add(b,{g:"E",t:`Miller ${mobTxt}度動搖：再生手術前或術後立即固定`,d:"目的是穩定傷口與血塊；早期癒合期再評估動搖度。直接證據只有一篇小型研究，且不是用 EMD 或屏障膜。",ev:[ev("ct15","Miller 二、三度動搖應在再生手術前或術後立即固定。"),ev("ct01","基線動搖度為 1 年附連獲得的顯著共變項（P = 0.036）。"),ev("sch00","骨移植手術 48 週附連獲得：術前固定 5.1 mm、拆線時固定 3.5 mm、不固定 1.7 mm（每組 11–12 人）。")]});
+    add(b,{g:"E",t:`Miller ${mobTxt}度動搖：再生手術前或術後立即固定`,d:"目的是穩定傷口與血塊；早期癒合期再評估動搖度。直接證據只有一篇小型研究，且不是用 EMD 或屏障膜。",ev:[ev("ct15","Miller 二、三度動搖應在再生手術前或術後立即固定。"),ev("ct01","基線動搖度為 1 年附連獲得的顯著共變項（P = 0.036）。"),ev("sch00","骨移植手術 48 週附連獲得：術前固定 5.1 mm、拆線時固定 3.5 mm、不固定 1.7 mm（每組 11–12 人）。"),ev("mik25","只收動搖 0–1 度：EMD 再生固定與否 1、3 年無差異，不能外推到二、三度。")]});
   } else if((S.mob==="2"||S.mob==="3")&&(resect||S.type==="horiz")){
     add(b,{g:"Z",t:`Miller ${mobTxt}度動搖：${resect?"切除性手術":"翻瓣清創"}不需常規固定`,d:(resect?"切除性骨手術後 1 個月動搖度會暫時上升，1 年回到術前水準，術前要先告知。":"翻瓣清創不影響動搖度。")+"固定不會提高牙齒存活；動搖影響咀嚼舒適時，可考慮暫時固定（第四期病人）。",ev:[ev("kerry82","囊袋消除手術（含骨手術）後 1 個月動搖度暫時上升，1 年回到術前水準；作者認為是手術創傷反應，不是骨高度降低。改良式 Widman 翻瓣不影響動搖度。"),ev("her22","R6.1（Grade O，證據極低）：第四期牙周炎動搖過大的牙齒，可在各步治療中考慮暫時固定，以提升舒適度並利於治療。"),ev("dom21","牙齒喪失：固定 8.4%、未固定 10.1%（2 篇回溯性研究，未做統計比較）。")]});
   }
@@ -380,7 +392,7 @@ function decide(){
     else if(S.ext==="mi"){ mat=contained?"單用 EMD":"EMD＋骨移植材料"; md=`MIST、${cTxt}。`+(contained?"":"MIST 翻瓣範圍小，原本就不是為放屏障膜設計；若判斷需要屏障膜（± 骨移植），翻瓣要改成延伸翻瓣。"); }
     else { mat=contained?"單用 EMD":"屏障膜＋骨移植材料，或 EMD＋骨移植材料"; md=`延伸翻瓣、${cTxt}：${contained?"3 壁為主或支撐良好的 2 壁，單用 EMD 即可":"需要骨移植材料維持空間與穩定"}。`; }
     add(m,{g:"A",t:mat,d:md+(S.walls==="mix"?" 複合型以修整後深部的骨壁型態判斷。":""),ev:[ev("ct15","Node 3：M-MIST 不放材料或 EMD；MIST 包覆性 EMD、非包覆性 EMD＋骨移植；延伸翻瓣包覆性 EMD，非包覆性屏障膜、屏障膜＋骨移植或 EMD＋骨移植。"),ev("ct15","MIST 翻瓣的設計不是為了放屏障膜，但很適合使用生物製劑或骨移植材料（p. 18）。"),ev("s3","R3.8（Grade A）：使用屏障膜或 EMD，可加或不加骨來源的移植材料。"),ev("koo11","窄、深、3 壁包覆性缺損可單用 EMD。")]});
-    add(m,{g:"E",t:"組合時的注意",d:"EMD 加骨移植的附加效益小；EMD 與屏障膜並用沒有額外效益；骨材能被包覆時不必再加屏障膜。",ev:[ev("mir26","EMD＋骨材 vs 單用 EMD：附連多 0.33 mm（95% CI 0.02–0.64），PPD 差異不顯著。"),ev("tu09","EMD 加屏障膜沒有額外效益；EMD 加牛骨 PPD 多降 0.78 mm、缺損充填多 1.46 mm。"),ev("avi22","包覆性決定是否需要骨材；能包覆骨材時不再加屏障膜。")]});
+    add(m,{g:"E",t:"組合時的注意",d:"EMD 加骨移植的附加效益小；EMD 與屏障膜並用沒有額外效益；骨材能被包覆時不必再加屏障膜。",ev:[ev("mir26","EMD＋骨材 vs 單用 EMD：附連多 0.33 mm（95% CI 0.02–0.64），PPD 差異不顯著。"),ev("tsai20","Tu 2009 的更新版（60 篇）：EMD、GTR 及組合都優於翻瓣；再生療法之間差異小，組合療法沒有比單用 EMD 或 GTR 明顯更好（p. 1115）。"),ev("tu09","EMD 加屏障膜沒有額外效益；EMD 加牛骨 PPD 多降 0.78 mm、缺損充填多 1.46 mm。"),ev("avi22","包覆性決定是否需要骨材；能包覆骨材時不再加屏障膜。")]});
   }
 
   // 3 根岔
@@ -388,11 +400,11 @@ function decide(){
     const fu=sec("根岔處置");
     const smokeNote=(S.smk==="light"||S.smk==="heavy");
     const vNote={A:"垂直成分淺（A）",B:"垂直成分中等（B）",C:"垂直成分深（C）"}[S.vert];
-    const baseEv=[ev("s3","R3.10：有殘留囊袋的二、三度根岔臼齒應接受牙周治療（Grade A）；根岔侵犯本身不是拔牙理由（Statement）。"),ev("nib16","根岔侵犯使維護期 10–15 年拔除風險約增為兩倍（RR 2.21）；多數三度根岔臼齒治療後仍反應良好。")];
+    const baseEv=[ev("s3","R3.10：有殘留囊袋的二、三度根岔臼齒應接受牙周治療（Grade A）；根岔侵犯本身不是拔牙理由（Statement）。"),ev("nib16","根岔侵犯使維護期 10–15 年拔除風險約增為兩倍（RR 2.21）；多數三度根岔臼齒治療後仍反應良好。"),ev("chen24","維護期大臼齒存活率 82%（平均 14.7 年）；拔除風險 vs 無根岔：一度 RR 1.22（不顯著）、二度 1.93、三度 3.17（p. 643）。")];
     if(S.hamp==="1"){
       add(fu,{g:"E",t:"一度：齦下清創為主，必要時骨整形",d:"EFP S3 的根岔建議只涵蓋二、三度。一度可在翻瓣時以骨整形修整初期根岔侵犯的骨形態。",ev:[ev("car00","骨整形可用於不需移除支持骨的初期根岔侵犯。"),ev("ham75","Hamp 根岔分類與治療系統原始文獻。")]});
     } else if(S.hamp==="2"&&S.floc==="mand"){
-      add(fu,{g:"A",t:"下顎二度：再生手術",d:"根岔改善、水平附連與 PPD 皆優於翻瓣清創。完全閉合 0–60%，實際目標是轉為可維護的一度。",ev:[ev("s3","R3.11（Grade A）：下顎二度根岔殘留囊袋建議再生手術（17 篇 RCT，493 人）。"),ev("jep20","再生 vs 翻瓣清創：根岔改善 OR 20.9、水平附連多 1.6 mm；完全閉合 0–60%，轉為一度 29–100%。"),ev("pon87","GTR 6 個月 19/21 二度缺損消除。")]});
+      add(fu,{g:"A",t:"下顎二度：再生手術",d:"根岔改善、水平附連與 PPD 皆優於翻瓣清創。完全閉合 0–60%，實際目標是轉為可維護的一度。",ev:[ev("s3","R3.11（Grade A）：下顎二度根岔殘留囊袋建議再生手術（17 篇 RCT，493 人）。"),ev("jep20","再生 vs 翻瓣清創：根岔改善 OR 20.9、水平附連多 1.6 mm；完全閉合 0–60%，轉為一度 29–100%。"),ev("pon87","GTR 6 個月 19/21 二度缺損消除。"),ev("graz15","對照：下顎二度只做翻瓣清創，6 個月水平附連 +0.96 mm、PPD −1.38 mm；牙齒存活少有報告。")]});
       addFurcMat(fu);
     } else if(S.hamp==="2"&&S.floc==="maxb"&&S.multi!=="y"){
       add(fu,{g:"B",t:"上顎頰側二度：再生手術",d:"建議強度低於下顎，證據只有 3 篇小樣本 RCT。",ev:[ev("s3","R3.12（Grade B）：上顎頰側二度根岔殘留囊袋建議再生手術（3 篇 RCT，82 人）。"),ev("met91","上顎二度 GTR vs OFD：附連獲得 1.0 vs 0.2 mm 差異不顯著；沒有完全骨充填。")]});
